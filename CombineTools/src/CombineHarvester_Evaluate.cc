@@ -154,6 +154,20 @@ TH1F CombineHarvester::GetShapeWithUncertainty(RooFitResult const& fit,
     p_vec[n] = GetParameter(r_vec[n]->GetName());
   }
 
+  if(n_samples == 1){
+      fit.randomizePars();
+      for (int n = 0; n < n_pars; ++n) {
+          if (p_vec[n]) p_vec[n]->set_val(r_vec[n]->getVal());
+      }
+      TH1F rand_shape = this->GetShapeInternal(lookup);
+      for (int i = 1; i <= shape.GetNbinsX(); ++i) {
+          shape.SetBinContent(i, rand_shape.GetBinContent(i));
+      }
+      this->UpdateParameters(backup);
+      return shape;
+  }
+
+
   // Main loop through n_samples
   for (unsigned i = 0; i < n_samples; ++i) {
     // Randomise and update values

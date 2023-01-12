@@ -3,6 +3,7 @@
 #include "boost/format.hpp"
 #include "TSystem.h"
 #include "TH2F.h"
+#include "RooRandom.h"
 #include "CombineHarvester/CombineTools/interface/CombineHarvester.h"
 #include "CombineHarvester/CombineTools/interface/ParseCombineWorkspace.h"
 #include "CombineHarvester/CombineTools/interface/TFileIO.h"
@@ -40,6 +41,7 @@ int main(int argc, char* argv[]) {
   string output     = "";
   bool factors      = false;
   unsigned samples  = 500;
+  unsigned seed  = 123456;
   std::string freeze_arg = "";
   bool covariance   = false;
   string data       = "data_obs";
@@ -85,6 +87,7 @@ int main(int argc, char* argv[]) {
     ("samples",
       po::value<unsigned>(&samples)->default_value(samples),
       "Number of samples to make in each evaluate call")
+    ("seed", po::value<unsigned>(&seed)->default_value(seed), "Roofit seed")
     ("print",
       po::value<bool>(&factors)->default_value(factors)->implicit_value(true),
       "Print tables of background shifts and relative uncertainties")
@@ -185,6 +188,9 @@ int main(int argc, char* argv[]) {
     }
     return no_shape;
   });
+
+  //Set roofit seed
+  RooRandom::randomGenerator()->SetSeed(seed);
 
   auto bins = cmb.cp().bin_set();
 
